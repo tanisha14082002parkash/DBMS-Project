@@ -1,0 +1,269 @@
+create table Professor(Prof_ID number(5) primary key, Prof_name char(200) NOT NULL, Dept char(100), 
+Project_ID number(5) UNIQUE, Specialization varchar(500));
+alter table Professor add constraint c1 check (Dept in('CSED', 'ECED', 'MECH', 'BIOTECH', 'IT', 'INDUSTRIAL', 'CHEMICAL'));
+desc professor;
+
+create table Project(Project_ID number(5) primary key, Proj_name char(200) NOT NULL, Prof_ID number(5) UNIQUE, Type char(2), Team_name char(100) NOT NULL, 
+Start_date date, Duration_in_months number(3), Status char(100));
+alter table Project add constraint c2 check(Type in('P','R'));
+alter table Project add constraint c3 check(Status in('IN PROGRESS', 'COMPLETED'));
+desc project;
+
+create table Student (Roll_no number(10) primary key, S_name char(200) NOT NULL, Branch char(5), Specialization varchar(500), Grad_year number(4), Curr_year number(2), Project_ID number(5));
+desc student;
+
+create table Team(Team_Name char(200) primary key,Proj_name char(200), Prof_name char(200), No_of_students number(4));
+desc team;
+
+
+
+--relationships
+alter table Professor add constraint f1 foreign key (Project_ID) references Project (Project_ID);
+alter table Student add constraint f2 foreign key (Project_ID) references Project(Project_ID);
+alter table Project add constraint f3 foreign key (Team_name) references Team(Team_Name);
+alter table Project drop constraint f3;
+alter table Student add Team_Name char(200);
+alter table Student add constraint f4 foreign key (Team_Name) references Team(Team_Name);
+
+--normalisation
+--student table ka child: student_specialization table
+create table S_specialization(Roll_no number(10) , Specialization char(50));
+alter table Student drop column Specialization;
+alter table S_specialization add constraint f5 foreign key (Roll_no) references Student (Roll_no);
+alter table Student drop column S_name;
+alter table Student add S_firstname char(50) NOT NULL;
+alter table Student add S_lastname char(50);
+--student table is in 1nf
+
+create table P_specialization(Prof_ID number(5), Specialization char(50));
+alter table Professor drop column Specialization;
+alter table Professor add P_firstname char(50) NOT NULL;
+alter table Professor add P_lastname char(50);
+alter table Professor drop column Prof_name;
+--professor table in 1nf
+
+--project table already in 1nf
+alter table Team drop column Prof_name;
+--team table in 1nf
+
+--all tables already in 2nf as each has only one primary key
+
+--student table has transitive dependency as a project id can determine team name so it can appear as a seperate table
+desc Project
+desc Team
+desc Professor
+desc STudent
+
+alter table Student drop constraint f4;
+alter table Student drop column Team_name;
+
+
+--DATA INSERTION
+insert into Team values('SEIMMENS', 'VOICE_ASSISTANT', 3);
+INSERT INTO TEAM VALUES('FRONTIERS', 'LOGIN_AUTHENTICATION', 5);
+INSERT INTO TEAM VALUES('XBEES', 'LINE_FOLLOWER', 5);
+INSERT INTO TEAM VALUES('CAFFEINE', 'SaaS_WEBPAGE',4);
+INSERT INTO TEAM VALUES('PHOENIX', 'LIBRARY_MANAGEMENT_SYSTEM', 4);
+INSERT INTO TEAM VALUES('STARS', 'RESTAURANT_APP',5);
+INSERT INTO TEAM VALUES('INNOVATORS', 'ENRON_INVESTIGATION',4);
+INSERT INTO TEAM VALUES('ALLIES', 'STOCK_PREDICTION',3);
+INSERT INTO TEAM VALUES('LEGENDS', 'SPACE_SHOOTER_GAME',4);
+INSERT INTO TEAM VALUES('CHAMPIONS','AUTOMATED_CAR',4);
+
+select *from team;
+
+ALTER TABLE PROFESSOR DROP CONSTRAINT F1 ;
+ALTER TABLE PROFESSOR DROP COLUMN Project_ID;
+
+insert into professor values(1001, 'CSED', 'GEETA', 'KASANA');
+insert into professor values(1002, 'ECED', 'RAVINDRA', 'KUMAR');
+insert into professor values(1003, 'MECH', 'KAMAL', 'SINGH');
+insert into professor values(1004, 'BIOTECH', 'SHALINI', 'SHARMA');
+insert into professor values(1005, 'IT', 'SHARAD', 'SAXENA');
+
+SELECT* FROM PROFESSOR;
+
+INSERT INTO PROJECT VALUES (3001, 'STOCK_PREDICTION', 1001, 'P', 'ALLIES', TO_DATE('17-02-2022','DD-MM-YYYY'), 4, 'IN PROGRESS');
+INSERT INTO PROJECT VALUES (3002, 'LIBRARY_MANAGEMENT_SYSTEM', 1002, 'P', 'PHOENIX', TO_DATE('16-05-2022','DD-MM-YYYY'), 6, 'IN PROGRESS');
+INSERT INTO PROJECT VALUES (3003, 'RESTAURANT_APP', 1003, 'P', 'STARS', TO_DATE('20-08-2020','DD-MM-YYYY'), 5, 'IN PROGRESS');
+INSERT INTO PROJECT VALUES (3004, 'AUTOMATED_CAR', 1004, 'P', 'CHAMPIONS', TO_DATE('09-04-2021','DD-MM-YYYY'), 2, 'IN PROGRESS');
+INSERT INTO PROJECT VALUES (3005, 'SaaS_WEBPAGE', 1005, 'P', 'CAFFEINE', TO_DATE('25-06-2020','DD-MM-YYYY'), 6, 'IN PROGRESS');
+DESC PROJECT
+SELECT * FROM PROJECT
+
+INSERT INTO STUDENT VALUES(102007584,'COE',2024,2,3001,'RAHUL','KADIYAN');
+INSERT INTO STUDENT VALUES(102007560,'ENC',2025,1,3002,'PREM','KAPOOR');
+INSERT INTO STUDENT VALUES(102007550,'EIC',2023,3,3003,'ROHAN','SINGH');
+INSERT INTO STUDENT VALUES(102007556,'ECE',2024,2,3004,'SIMRAN','MALHOTRA');
+INSERT INTO STUDENT VALUES(102007578,'COE',2023,3,3005,'TANISHA','SHARMA');
+SELECT * FROM STUDENT
+
+INSERT INTO P_specialization VALUES(1001,'Dev-ops');
+INSERT INTO P_specialization VALUES(1001,'Computer_Vision');
+INSERT INTO P_specialization VALUES(1003,'VLSI_Design');
+INSERT INTO P_specialization VALUES(1004,'Machining');
+INSERT INTO P_specialization VALUES(1005,'Gene-Mutation');
+INSERT INTO P_specialization VALUES(1002,'Machine_learning');
+INSERT INTO P_specialization VALUES(1001,'DNA_Analysis');
+SELECT * FROM P_specialization
+
+INSERT INTO  S_specialization VALUES(102007584,'FULL_STACK');
+INSERT INTO  S_specialization VALUES(102007584,'AI');
+INSERT INTO S_specialization VALUES(102007560,'UI/UX_DESIGN');
+INSERT INTO  S_specialization VALUES(102007560,'VLSI_DESIGN');
+INSERT INTO  S_specialization VALUES(102007550,'Gene-Mutation');
+INSERT INTO S_specialization VALUES(102007556,'DEVOPS');
+INSERT INTO  S_specialization VALUES(102007556,'Machining');
+INSERT INTO  S_specialization VALUES(102007556,'COMPUTER_VISION');
+SELECT * FROM S_specialization
+
+--PLSQL
+--PROCEDURES
+CREATE OR REPLACE PROCEDURE INSERT_STUDENT(v_rollno IN student.Roll_no%type, v_fname IN student.s_firstname%type, v_lname IN student.s_lastname%type, v_branch IN student.branch%type, v_gradyr IN student.grad_year%type, v_curryr IN student.curr_year%type, v_projid IN student.project_id%type)
+is
+begin
+insert into student values(v_rollno,v_branch,v_gradyr, v_curryr, v_projid, v_lname, v_fname);
+end insert_student;
+
+
+create or replace procedure insert_professor(v_profid IN professor.prof_id%type, v_dept IN professor.dept%type, v_fname IN professor.p_firstname%type, v_lname IN professor.p_lastname%type)
+is
+begin
+insert into professor values(v_profid, v_dept, v_fname, v_lname);
+dbms_output.put_line('Record inserted');
+end insert_professor;
+
+create or replace procedure insert_project(v_projid In project.project_id%type, v_pname IN project.proj_name%type, v_pid IN project.prof_id%type, v_type IN char, v_teamname IN project.team_name%type, v_startdate IN project.start_date%type, v_duration IN project.duration_in_months%type, v_status IN project.status%type)
+is
+begin
+insert into project values(v_projid,v_pname,v_pid, v_type, v_teamname, v_startdate, v_duration, v_status);
+dbms_output.put_line('Record inserted');
+end insert_project;
+
+create or replace procedure insert_team(v_teamname IN team.team_name%type, v_projname IN team.proj_name%type, v_noofstudents IN team.no_of_students%type)
+is
+begin
+insert into team values(v_teamname, v_projname, v_noofstudents);
+dbms_output.put_line('Record inserted');
+end insert_team;
+
+--CURSORS
+declare 
+v_count   number(3):=0;
+v_rollno s_specialization.roll_no%type :=102007584;
+cursor spn is 
+select roll_no,specialization from s_specialization where roll_no=v_rollno;
+rec spn%rowtype;
+begin
+open spn;
+dbms_output.put_line('roll no'||chr(9)||'specialization');
+loop
+fetch spn into rec;
+dbms_output.put_line(rec.roll_no|| chr(9)||rec.specialization);
+v_count:=v_count+1;
+exit when spn%NOTFOUND;
+end loop;
+dbms_output.put_line('data fetched');
+close spn;
+end;
+
+DECLARE
+  
+  --x P_specialization.specialization%type := 'Dev-ops';
+  CURSOR find_proff IS 
+  SELECT prof_id, specialization FROM P_specialization
+  WHERE specialization like '%Computer_Vision%' ;
+  ar find_proff%rowtype;
+BEGIN
+ open find_proff;
+  LOOP
+fetch find_proff into ar;
+    DBMS_OUTPUT.PUT_LINE(ar.prof_id||chr(9)||ar.specialization);
+      exit when find_proff%NOTFOUND;
+  END LOOP;
+  DBMS_OUTPUT.PUT_LINE('data fetched');
+   close find_proff;
+END;
+
+--FUNCTION
+create or replace function total_students(v_branch IN student.branch%type)
+return number
+is
+v_tot_students number(3):=0;
+begin
+select count(*) into v_tot_students from student where branch=v_branch;
+return v_tot_students;
+end total_students;
+
+--EXCEPTION HANDLING
+--procedure
+CREATE OR REPLACE PROCEDURE INSERT_STUDENT(v_rollno IN student.Roll_no%type, v_fname IN student.s_firstname%type, v_lname IN student.s_lastname%type, v_branch IN student.branch%type, v_gradyr IN student.grad_year%type, v_curryr IN student.curr_year%type, v_projid IN student.project_id%type)
+is
+begin
+insert into student values(v_rollno,v_branch,v_gradyr, v_curryr, v_projid, v_lname, v_fname);
+end insert_student;
+
+--exception handling
+DECLARE  
+   v_rollno student.Roll_no%type;  
+  -- v_fname  student.s_firstname%type;  
+--   v_lname student.s_lastname%type;
+    v_branch student.branch%type;
+  --  v_gradyr  student.grad_year%type;
+  --  v_curryr student.curr_year%type;
+  --  v_projid  student.project_id%type; 
+   
+BEGIN  
+   SELECT  Roll_no, branch INTO  v_rollno, v_branch  
+   FROM student where s_firstname LIKE '%SAHIL%';
+
+DBMS_OUTPUT.PUT_LINE ('Roll_no: '||  v_rollno);  
+ DBMS_OUTPUT.PUT_LINE ('Branch: ' || v_branch); 
+ --   WHERE s_firstname = v_fname ; 
+--    WHERE s_lastname = v_lname ;
+  --   WHERE grad_year = v_gradyr ;
+    --  WHERE curr_year =  v_curryr ;
+      -- WHERE project_id = v_projid ;
+EXCEPTION  
+   WHEN no_data_found THEN  
+      dbms_output.put_line('No such student!'); 
+WHEN too_many_rows THEN
+dbms_output.put_line('Many rows found') ;
+   WHEN others THEN  
+      dbms_output.put_line('Error!');  
+END;  
+
+
+
+--CREATE TRIGGER
+--delete one project from table if status is in progress then u cant delete
+CREATE OR REPLACE TRIGGER delproject
+AFTER DELETE ON project  
+FOR EACH ROW
+  
+DECLARE  
+   --sal_diff number;  
+BEGIN
+   if: old.status='in progress' then dbms_output.put_line('cannot delete project that is not finished');
+    end if;
+END;  
+
+
+--CALL TRIGGER
+
+DECLARE   
+   v_projid project.project_id%type :=3003;
+     
+BEGIN  
+   DELETE FROM project  
+   WHERE project_id =v_projid; 
+   IF sql%notfound THEN
+      dbms_output.put_line('no project deleted');
+   ELSif sql%found THEN
+         dbms_output.put_line('one row deleted');
+   END IF;
+END;
+
+
+
+select *from user_constraints where r_constraint_name='SYS_C0088107542';
